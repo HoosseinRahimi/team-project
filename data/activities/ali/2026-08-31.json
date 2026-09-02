@@ -1,0 +1,12 @@
+{
+  "user_id": "ali",
+  "date": "2026-08-31",
+  "activities": [
+    {
+      "id": "ali-2026-08-31-review-requirements",
+      "title": "Review project requirements",
+      "status": "completed",
+      "project_id": null
+    }
+  ]
+}

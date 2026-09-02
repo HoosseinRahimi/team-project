@@ -1,0 +1,12 @@
+{
+  "id": "team-platform",
+  "name": "Team Platform",
+  "owner_id": "hossein",
+  "description": "Example manifest demonstrating the student project contract.",
+  "technology": ["python"],
+  "project_type": "cli",
+  "entry_point": "main.py",
+  "run": "python main.py",
+  "build": null,
+  "repository_path": "projects/hossein/team-platform"
+}

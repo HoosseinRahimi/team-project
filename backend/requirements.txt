@@ -1,0 +1,6 @@
+# Runtime dependencies. Exact pins for reproducible builds — widen only deliberately.
+fastapi==0.141.1
+starlette==1.6.0
+pydantic==2.13.5
+anyio==4.14.2
+uvicorn[standard]==0.52.4

@@ -1,0 +1,12 @@
+{
+  "user_id": "reza",
+  "date": "2026-08-31",
+  "activities": [
+    {
+      "id": "reza-2026-08-31-setup-environment",
+      "title": "Set up local development environment",
+      "status": "in-progress",
+      "project_id": null
+    }
+  ]
+}

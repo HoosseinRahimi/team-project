@@ -1,0 +1,8 @@
+{
+  "id": "team-foundation",
+  "owner_id": "hossein",
+  "name": "Team Project Foundation",
+  "description": "Initial repository and application foundation.",
+  "technology": ["Python", "FastAPI", "React", "TypeScript", "SQLite"],
+  "status": "active"
+}

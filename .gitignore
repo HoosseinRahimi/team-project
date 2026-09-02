@@ -1,0 +1,41 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# JavaScript dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Temporary files and local databases
+*.tmp
+*.temp
+*.log
+*.sqlite
+*.sqlite3
+*.db
+backend/database/*.sqlite
+backend/database/*.db
+
+# IDE and operating-system files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Tooling caches
+.ruff_cache/
+.vite/
