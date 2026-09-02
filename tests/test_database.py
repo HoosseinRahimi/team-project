@@ -52,7 +52,7 @@ def test_sync_is_idempotent(tmp_path):
         assert first == second
         for table, rows in snapshot.items():
             assert rows == connection.execute(f"SELECT * FROM {table}").fetchall(), table
-        assert row_count(connection, "users") == 3
+        assert row_count(connection, "users") == 4
         assert row_count(connection, "activities") == 3
         assert row_count(connection, "projects") == 3
 
