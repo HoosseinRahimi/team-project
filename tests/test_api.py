@@ -39,10 +39,10 @@ def test_legacy_health_endpoint_still_works(client):
 def test_get_users_returns_example_team_members(client):
     response = client.get("/api/users")
     assert response.status_code == 200
-    assert [user["id"] for user in response.json()] == ["ali", "hossein", "reza"]
+    assert [user["id"] for user in response.json()] == ["ali", "hossein", "parsa", "reza"]
 
 
-@pytest.mark.parametrize("user_id", ["hossein", "ali", "reza"])
+@pytest.mark.parametrize("user_id", ["hossein", "ali", "reza", "parsa"])
 def test_get_user_returns_member(client, user_id):
     response = client.get(f"/api/users/{user_id}")
     assert response.status_code == 200
