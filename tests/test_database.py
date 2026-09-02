@@ -6,7 +6,12 @@ import pytest
 
 from backend.database.connection import connect
 from backend.database.init_db import apply_migrations, initialize_database
-from backend.database.source_files import SourceDataError, load_activities, load_users
+from backend.database.source_files import (
+    SourceDataError,
+    load_activities,
+    load_projects,
+    load_users,
+)
 from backend.database.sync_data import sync_source_data
 
 
@@ -41,6 +46,12 @@ def test_sync_is_idempotent(tmp_path):
     database_path = tmp_path / "fresh.db"
     initialize_database(database_path)
 
+    # Counts derive from the tracked data/ files so adding a member tab
+    # (one file per user/project/activity date) never breaks this test.
+    expected_users = len(load_users())
+    expected_activities = sum(len(file.activities) for file in load_activities())
+    expected_projects = len(load_projects())
+
     with connect(database_path) as connection:
         first = sync_source_data(connection)
         snapshot = {
@@ -52,9 +63,9 @@ def test_sync_is_idempotent(tmp_path):
         assert first == second
         for table, rows in snapshot.items():
             assert rows == connection.execute(f"SELECT * FROM {table}").fetchall(), table
-        assert row_count(connection, "users") == 3
-        assert row_count(connection, "activities") == 3
-        assert row_count(connection, "projects") == 3
+        assert row_count(connection, "users") == expected_users
+        assert row_count(connection, "activities") == expected_activities
+        assert row_count(connection, "projects") == expected_projects
 
 
 def test_seeded_database_matches_tracked_source_files(tmp_path):
