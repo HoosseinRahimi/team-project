@@ -109,6 +109,7 @@ PUT    /api/activities/{activity_id}
 DELETE /api/activities/{activity_id}
 GET    /api/projects
 POST   /api/projects
+PUT    /api/projects/{project_id}
 ```
 
 ## Run the frontend

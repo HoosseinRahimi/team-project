@@ -11,7 +11,7 @@ from ..database.connection import connect
 from ..database.sync_data import sync_source_data
 from ..schemas.api import ProjectResponse, ProjectWrite
 from ..schemas.source_data import ProjectRecord, validate_slug
-from .queries import get_user
+from .queries import NotFoundError, get_user
 
 
 def _slugify_name(name: str) -> str:
@@ -83,4 +83,22 @@ def create_project(payload: ProjectWrite) -> ProjectResponse:
         status=payload.status,
     )
     _apply_change(_file_path(project_id), record)
+    return _response(project_id, payload)
+
+
+def update_project(project_id: str, payload: ProjectWrite) -> ProjectResponse:
+    validate_slug(project_id, "project id")
+    path = _file_path(project_id)
+    if not path.exists():
+        raise NotFoundError(f"Unknown project: {project_id}")
+    get_user(payload.userId)
+    record = ProjectRecord(
+        id=project_id,
+        owner_id=payload.userId,
+        name=payload.name,
+        description=payload.description,
+        technology=payload.technology,
+        status=payload.status,
+    )
+    _apply_change(path, record)
     return _response(project_id, payload)

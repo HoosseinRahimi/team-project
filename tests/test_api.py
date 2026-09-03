@@ -39,10 +39,16 @@ def test_legacy_health_endpoint_still_works(client):
 def test_get_users_returns_example_team_members(client):
     response = client.get("/api/users")
     assert response.status_code == 200
-    assert [user["id"] for user in response.json()] == ["ali", "hossein", "parsa", "reza"]
+    assert [user["id"] for user in response.json()] == [
+        "ali",
+        "hossein",
+        "parsa",
+        "reza",
+        "shahrad",
+    ]
 
 
-@pytest.mark.parametrize("user_id", ["hossein", "ali", "reza", "parsa"])
+@pytest.mark.parametrize("user_id", ["hossein", "ali", "reza", "parsa", "shahrad"])
 def test_get_user_returns_member(client, user_id):
     response = client.get(f"/api/users/{user_id}")
     assert response.status_code == 200
@@ -234,3 +240,114 @@ def test_create_project_rejects_invalid_payloads(client):
     )
     assert invalid_user.status_code == 422
     assert not (source_files.DATA_ROOT / "projects" / "bad-status.json").exists()
+
+
+def test_update_project_updates_tracked_source_and_api(client):
+    created = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "Status Board",
+            "description": "Original description.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert created.status_code == 201
+    project_id = created.json()["id"]
+
+    updated = client.put(
+        f"/api/projects/{project_id}",
+        json={
+            "userId": "hossein",
+            "name": "Status Board",
+            "description": "Updated description.",
+            "technology": ["TypeScript"],
+            "status": "active",
+        },
+    )
+    assert updated.status_code == 200
+    assert updated.json()["id"] == project_id
+    assert updated.json()["description"] == "Updated description."
+    assert updated.json()["technology"] == ["TypeScript"]
+    assert updated.json()["status"] == "active"
+
+    projects = client.get("/api/projects").json()
+    match = [project for project in projects if project["id"] == project_id]
+    assert len(match) == 1
+    assert match[0]["status"] == "active"
+    assert any(project.id == project_id for project in source_files.load_projects())
+
+
+def test_update_project_supports_owner_change(client):
+    created = client.post(
+        "/api/projects",
+        json={
+            "userId": "ali",
+            "name": "Handover Project",
+            "description": "Owned by ali at first.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert created.status_code == 201
+    project_id = created.json()["id"]
+
+    updated = client.put(
+        f"/api/projects/{project_id}",
+        json={
+            "userId": "parsa",
+            "name": "Handover Project",
+            "description": "Now owned by parsa.",
+            "technology": [],
+            "status": "active",
+        },
+    )
+    assert updated.status_code == 200
+    assert updated.json()["userId"] == "parsa"
+    tracked = {project.id: project for project in source_files.load_projects()}
+    assert tracked[project_id].owner_id == "parsa"
+
+
+def test_update_unknown_project_returns_structured_404(client):
+    response = client.put(
+        "/api/projects/does-not-exist",
+        json={
+            "userId": "hossein",
+            "name": "Ghost",
+            "description": "No such project.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert response.status_code == 404
+    assert response.json()["error"] == "Not Found"
+
+
+def test_update_project_rejects_unknown_owner(client):
+    created = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "Owner Check",
+            "description": "Original owner is valid.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert created.status_code == 201
+    project_id = created.json()["id"]
+
+    response = client.put(
+        f"/api/projects/{project_id}",
+        json={
+            "userId": "nobody",
+            "name": "Owner Check",
+            "description": "Invalid new owner.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert response.status_code == 404
+    tracked = {project.id: project for project in source_files.load_projects()}
+    assert tracked[project_id].owner_id == "hossein"

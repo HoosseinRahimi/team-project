@@ -42,6 +42,16 @@ export async function createProject(payload: ProjectInput): Promise<Project> {
   return (await response.json()) as Project;
 }
 
+export async function updateProject(id: string, payload: ProjectInput): Promise<Project> {
+  const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw await parseError(response);
+  return (await response.json()) as Project;
+}
+
 export async function updateActivity(id: string, payload: ActivityInput): Promise<Activity> {
   const response = await fetch(`${API_BASE_URL}/api/activities/${id}`, {
     method: "PUT",

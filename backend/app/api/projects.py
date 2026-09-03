@@ -18,3 +18,9 @@ def list_projects() -> list[ProjectResponse]:
 def create_project(payload: ProjectWrite) -> ProjectResponse:
     """Create a tracked project owned by a team member."""
     return project_writes.create_project(payload)
+
+
+@router.put("/{project_id}", response_model=ProjectResponse)
+def update_project(project_id: str, payload: ProjectWrite) -> ProjectResponse:
+    """Update an existing tracked project."""
+    return project_writes.update_project(project_id, payload)
