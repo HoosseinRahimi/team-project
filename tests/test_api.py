@@ -134,3 +134,103 @@ def test_get_projects_returns_project_collection(client):
     projects = response.json()
     assert {project["id"] for project in projects} >= {"team-foundation"}
     assert all(isinstance(project["technology"], list) for project in projects)
+
+
+def test_create_project_writes_tracked_source_and_appears_in_api(client):
+    created = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "Calendar Sync",
+            "description": "Keep calendar entries synchronized across the team.",
+            "technology": ["Python", " React "],
+            "status": "planned",
+        },
+    )
+    assert created.status_code == 201
+    assert created.json() == {
+        "id": "calendar-sync",
+        "userId": "hossein",
+        "name": "Calendar Sync",
+        "description": "Keep calendar entries synchronized across the team.",
+        "technology": ["Python", "React"],
+        "status": "planned",
+    }
+
+    projects = client.get("/api/projects").json()
+    assert any(project["id"] == "calendar-sync" for project in projects)
+
+    path = source_files.DATA_ROOT / "projects" / "calendar-sync.json"
+    assert path.exists()
+    assert any(project.id == "calendar-sync" for project in source_files.load_projects())
+
+
+def test_create_project_deduplicates_generated_ids(client):
+    for expected_id in ("sample-project", "sample-project-2"):
+        response = client.post(
+            "/api/projects",
+            json={
+                "userId": "hossein",
+                "name": "Sample Project",
+                "description": "A duplicate-name project.",
+                "technology": [],
+                "status": "planned",
+            },
+        )
+        assert response.status_code == 201
+        assert response.json()["id"] == expected_id
+
+
+def test_create_project_rejects_unknown_owner(client):
+    response = client.post(
+        "/api/projects",
+        json={
+            "userId": "nobody",
+            "name": "Orphan Project",
+            "description": "No such owner.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert response.status_code == 404
+    assert response.json()["error"] == "Not Found"
+    assert not (source_files.DATA_ROOT / "projects" / "orphan-project.json").exists()
+
+
+def test_create_project_rejects_invalid_payloads(client):
+    bad_status = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "Bad Status",
+            "description": "Invalid status value.",
+            "technology": [],
+            "status": "launched",
+        },
+    )
+    assert bad_status.status_code == 422
+
+    empty_name = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "",
+            "description": "Empty name.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert empty_name.status_code == 422
+
+    invalid_user = client.post(
+        "/api/projects",
+        json={
+            "userId": "Bad User!",
+            "name": "Invalid Owner",
+            "description": "Owner id is not a slug.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert invalid_user.status_code == 422
+    assert not (source_files.DATA_ROOT / "projects" / "bad-status.json").exists()

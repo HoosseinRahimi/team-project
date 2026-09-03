@@ -1,4 +1,4 @@
-import type { Activity, ActivityInput, Project, User } from "./types";
+import type { Activity, ActivityInput, Project, ProjectInput, User } from "./types";
 
 const API_BASE_URL: string =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:8000";
@@ -30,6 +30,16 @@ export async function createActivity(payload: ActivityInput): Promise<Activity> 
   });
   if (!response.ok) throw await parseError(response);
   return (await response.json()) as Activity;
+}
+
+export async function createProject(payload: ProjectInput): Promise<Project> {
+  const response = await fetch(`${API_BASE_URL}/api/projects`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw await parseError(response);
+  return (await response.json()) as Project;
 }
 
 export async function updateActivity(id: string, payload: ActivityInput): Promise<Activity> {

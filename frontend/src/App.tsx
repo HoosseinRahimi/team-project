@@ -6,6 +6,7 @@ import CalendarView from "./components/CalendarView";
 import DashboardStats from "./components/DashboardStats";
 import Layout from "./components/Layout";
 import MemberList from "./components/MemberList";
+import ProjectForm from "./components/ProjectForm";
 import StatusMessage from "./components/StatusMessage";
 import TimelineView from "./components/TimelineView";
 import type { Activity, Project, User } from "./types";
@@ -162,6 +163,7 @@ function UserPage({ userId }: { userId: string }) {
           </div>
           <span className="member-count">{projects.length}</span>
         </div>
+        <ProjectForm userId={userId} onSaved={loadData} />
         {projects.length > 0 ? (
           <div className="project-list">
             {projects.map((project) => (

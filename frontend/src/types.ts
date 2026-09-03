@@ -23,6 +23,8 @@ export interface ActivityInput {
   projectId: string | null;
 }
 
+export type ProjectStatus = "planned" | "active" | "completed" | "archived";
+
 export interface Project {
   id: string;
   userId: string;
@@ -30,4 +32,12 @@ export interface Project {
   description: string;
   technology: string[];
   status: string;
+}
+
+export interface ProjectInput {
+  userId: string;
+  name: string;
+  description: string;
+  technology: string[];
+  status: ProjectStatus;
 }
