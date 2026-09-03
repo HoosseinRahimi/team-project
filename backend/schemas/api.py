@@ -40,6 +40,14 @@ class ActivityWrite(BaseModel):
     status: str = "planned"
     projectId: str | None = None
 
+    @field_validator("title")
+    @classmethod
+    def _clean_title(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("Title must contain non-whitespace characters.")
+        return cleaned
+
     @field_validator("userId")
     @classmethod
     def _valid_user(cls, value: str) -> str:
@@ -73,6 +81,14 @@ class ProjectWrite(BaseModel):
     description: str = Field(min_length=1, max_length=500)
     technology: list[str] = Field(default_factory=list)
     status: str = "planned"
+
+    @field_validator("name", "description")
+    @classmethod
+    def _clean_text(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("Value must contain non-whitespace characters.")
+        return cleaned
 
     @field_validator("userId")
     @classmethod

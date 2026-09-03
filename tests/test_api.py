@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 
 import pytest
@@ -134,6 +135,42 @@ def test_activity_write_validates_user_and_project(client):
     assert unknown_project.status_code == 404
 
 
+def test_activity_write_normalizes_whitespace_in_titles(client):
+    created = client.post(
+        "/api/activities",
+        json={
+            "userId": "hossein",
+            "date": "2026-09-03",
+            "title": "  Refactor sync flow  ",
+            "status": "planned",
+            "projectId": None,
+        },
+    )
+    assert created.status_code == 201
+    assert created.json()["title"] == "Refactor sync flow"
+
+    tracked = json.loads(
+        (source_files.DATA_ROOT / "activities" / "hossein" / "2026-09-03.json").read_text()
+    )
+    titles = [activity["title"] for activity in tracked["activities"]]
+    assert "Refactor sync flow" in titles
+
+
+def test_activity_write_rejects_whitespace_only_title(client):
+    response = client.post(
+        "/api/activities",
+        json={
+            "userId": "hossein",
+            "date": "2026-09-04",
+            "title": "   ",
+            "status": "planned",
+            "projectId": None,
+        },
+    )
+    assert response.status_code == 422
+    assert not (source_files.DATA_ROOT / "activities" / "hossein" / "2026-09-04.json").exists()
+
+
 def test_get_projects_returns_project_collection(client):
     response = client.get("/api/projects")
     assert response.status_code == 200
@@ -240,6 +277,88 @@ def test_create_project_rejects_invalid_payloads(client):
     )
     assert invalid_user.status_code == 422
     assert not (source_files.DATA_ROOT / "projects" / "bad-status.json").exists()
+
+
+def test_create_project_normalizes_whitespace_in_text_fields(client):
+    created = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "  Calendar Sync  ",
+            "description": "  Keep calendar entries synchronized.  ",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert created.status_code == 201
+    assert created.json()["id"] == "calendar-sync"
+    assert created.json()["name"] == "Calendar Sync"
+    assert created.json()["description"] == "Keep calendar entries synchronized."
+
+    tracked = {project.id: project for project in source_files.load_projects()}
+    assert tracked["calendar-sync"].name == "Calendar Sync"
+    assert tracked["calendar-sync"].description == "Keep calendar entries synchronized."
+
+
+def test_create_project_rejects_whitespace_only_name_and_description(client):
+    blank_name = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "   ",
+            "description": "Name is blank.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert blank_name.status_code == 422
+
+    blank_description = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "Blank Description",
+            "description": "   ",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert blank_description.status_code == 422
+
+    assert not (source_files.DATA_ROOT / "projects" / "project.json").exists()
+    assert not (source_files.DATA_ROOT / "projects" / "blank-description.json").exists()
+
+
+def test_update_project_rejects_whitespace_only_fields(client):
+    created = client.post(
+        "/api/projects",
+        json={
+            "userId": "hossein",
+            "name": "Status Board",
+            "description": "Original description.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert created.status_code == 201
+    project_id = created.json()["id"]
+
+    response = client.put(
+        f"/api/projects/{project_id}",
+        json={
+            "userId": "hossein",
+            "name": "   ",
+            "description": "Name is blank.",
+            "technology": [],
+            "status": "planned",
+        },
+    )
+    assert response.status_code == 422
+
+    tracked = {project.id: project for project in source_files.load_projects()}
+    assert tracked[project_id].name == "Status Board"
+    assert tracked[project_id].description == "Original description."
+    assert tracked[project_id].status == "planned"
 
 
 def test_update_project_updates_tracked_source_and_api(client):
