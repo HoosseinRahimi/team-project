@@ -6,6 +6,7 @@ import CalendarView from "./components/CalendarView";
 import DashboardStats from "./components/DashboardStats";
 import Layout from "./components/Layout";
 import MemberList from "./components/MemberList";
+import ProjectForm from "./components/ProjectForm";
 import StatusMessage from "./components/StatusMessage";
 import TimelineView from "./components/TimelineView";
 import type { Activity, Project, User } from "./types";
@@ -82,6 +83,7 @@ function UserPage({ userId }: { userId: string }) {
   const [state, setState] = useState<TeamState>({ users: [], activities: [], projects: [] });
   const [error, setError] = useState("");
   const [editing, setEditing] = useState<Activity | null>(null);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   async function loadData() {
     const [users, activities, projects] = await Promise.all([
@@ -162,6 +164,12 @@ function UserPage({ userId }: { userId: string }) {
           </div>
           <span className="member-count">{projects.length}</span>
         </div>
+        <ProjectForm
+          userId={userId}
+          editing={editingProject}
+          onSaved={loadData}
+          onCancelEdit={() => setEditingProject(null)}
+        />
         {projects.length > 0 ? (
           <div className="project-list">
             {projects.map((project) => (
@@ -171,6 +179,11 @@ function UserPage({ userId }: { userId: string }) {
                   <h3>{project.name}</h3>
                   <p>{project.description}</p>
                   <small>{project.technology.join(" · ") || "No technology listed"}</small>
+                </div>
+                <div className="item-actions">
+                  <button type="button" onClick={() => setEditingProject(project)}>
+                    Edit
+                  </button>
                 </div>
               </article>
             ))}

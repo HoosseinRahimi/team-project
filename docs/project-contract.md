@@ -77,6 +77,25 @@ Future activity-creation features must preserve the Git-friendly model:
 
 Never store shared activities only in SQLite.
 
+## Creating and editing projects
+
+`POST /api/projects` (and the dashboard "Create a project" form) follows the
+same Git-friendly model:
+
+1. validate the payload against the API schema (`ProjectWrite`),
+2. slugify the project name into a unique id, then atomically write
+   `data/projects/<id>.json`,
+3. run the idempotent sync to update the runtime database.
+
+If database reconciliation fails, the written source file is restored, so the
+repository and the runtime database never knowingly diverge. Project ids are
+lowercase slugs derived from the name; duplicates get numeric suffixes.
+
+`PUT /api/projects/{project_id}` (and the dashboard "Edit" action) updates the
+name, description, technology, status, and owner of an existing project using
+the same flow. The stable project id (and its file name) never changes, so
+activities referencing the project stay valid across edits.
+
 ## Student projects (`projects/<owner>/<project>/`)
 
 Each student project directory contains a `project.json` manifest:
