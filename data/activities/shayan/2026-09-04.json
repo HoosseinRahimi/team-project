@@ -1,0 +1,12 @@
+{
+  "user_id": "shayan",
+  "date": "2026-09-04",
+  "activities": [
+    {
+      "id": "shayan-2026-09-04-add-chess-game",
+      "title": "Add chess game to my member tab",
+      "status": "completed",
+      "project_id": "shayan-chess-game"
+    }
+  ]
+}

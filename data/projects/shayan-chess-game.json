@@ -1,0 +1,8 @@
+{
+  "id": "shayan-chess-game",
+  "owner_id": "shayan",
+  "name": "Chess Game",
+  "description": "Playable chess built into the member dashboard: full rules, move history, and a built-in computer opponent.",
+  "technology": ["React", "TypeScript"],
+  "status": "active"
+}

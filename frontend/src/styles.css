@@ -514,3 +514,173 @@ h2 {
     gap: 6px;
   }
 }
+
+/* Chess corner */
+
+.chess-card {
+  margin-bottom: 20px;
+}
+.chess-game {
+  align-items: start;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
+}
+.chess-board-frame {
+  position: relative;
+}
+.chess-board {
+  border: 1px solid #c4cdc2;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 100%;
+}
+.chess-square {
+  align-items: center;
+  aspect-ratio: 1;
+  border: 0;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
+  position: relative;
+}
+.chess-square.light {
+  background: #ece9dc;
+}
+.chess-square.dark {
+  background: #a4b89f;
+}
+.chess-square:disabled {
+  cursor: default;
+}
+.chess-piece {
+  font-size: clamp(1.4rem, 5.5vmin, 2.5rem);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+.chess-piece.white {
+  color: #f8f5ec;
+  text-shadow:
+    0 0 1px #2c2c26,
+    0 1px 2px rgba(24, 34, 30, 0.6);
+}
+.chess-piece.black {
+  color: #1d2721;
+  text-shadow: 0 1px 1px rgba(243, 240, 232, 0.25);
+}
+.chess-square.selected {
+  box-shadow: inset 0 0 0 3px #d05b3b;
+}
+.chess-square.last-move::before {
+  background: rgba(208, 91, 59, 0.18);
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+.chess-square.in-check {
+  box-shadow: inset 0 0 0 3px #b13f31;
+}
+.chess-square.move-target::after {
+  background: rgba(24, 34, 30, 0.35);
+  border-radius: 50%;
+  content: "";
+  height: 22%;
+  position: absolute;
+  width: 22%;
+}
+.chess-square.capture-target::after {
+  border: 3px solid rgba(177, 63, 49, 0.75);
+  border-radius: 50%;
+  content: "";
+  inset: 6%;
+  position: absolute;
+}
+.chess-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.chess-status {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+}
+.chess-status.decisive {
+  color: #d05b3b;
+}
+.chess-captured {
+  display: grid;
+  gap: 6px 18px;
+  grid-template-columns: 1fr 1fr;
+}
+.chess-captured p {
+  margin: 0;
+}
+.chess-captured span:first-child {
+  color: #66736c;
+  display: block;
+  font-family: "DM Mono", monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+.chess-captured span:last-child {
+  font-size: 1.25rem;
+}
+.chess-moves {
+  background: #f3f0e8;
+  border: 1px solid #d4d4c8;
+  font-family: "DM Mono", monospace;
+  font-size: 0.8rem;
+  list-style: none;
+  margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+.chess-moves li {
+  padding: 2px 0;
+}
+.chess-moves:empty::after {
+  color: #66736c;
+  content: "No moves yet — white starts.";
+}
+.chess-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.chess-promotion {
+  align-items: center;
+  background: rgba(24, 34, 30, 0.55);
+  display: flex;
+  gap: 16px;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+  z-index: 2;
+}
+.chess-promotion p {
+  color: #f3f0e8;
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  margin: 0;
+  text-transform: uppercase;
+}
+.chess-promotion > div {
+  display: flex;
+  gap: 8px;
+}
+.chess-promotion .promotion-choice {
+  border: 1px solid #c4cdc2;
+  height: 58px;
+  width: 58px;
+}
+
+@media (max-width: 800px) {
+  .chess-game {
+    grid-template-columns: 1fr;
+  }
+}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { deleteActivity, getActivities, getProjects, getUsers } from "./api";
 import ActivityForm from "./components/ActivityForm";
 import CalendarView from "./components/CalendarView";
+import ChessGame from "./components/ChessGame";
 import DashboardStats from "./components/DashboardStats";
 import Layout from "./components/Layout";
 import MemberList from "./components/MemberList";
@@ -151,6 +152,19 @@ function UserPage({ userId }: { userId: string }) {
         />
         <CalendarView activities={activities} />
       </div>
+
+      {userId === "shayan" ? (
+        <section className="dashboard-card chess-card">
+          <div className="section-heading compact">
+            <div>
+              <p className="eyebrow">Chess corner</p>
+              <h2>Play a quick game</h2>
+            </div>
+            <span className="member-count">shayan-chess-game</span>
+          </div>
+          <ChessGame />
+        </section>
+      ) : null}
 
       <TimelineView activities={activities} onEdit={setEditing} onDelete={removeActivity} />
 
